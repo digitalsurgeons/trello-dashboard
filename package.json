@@ -1,0 +1,13 @@
+{
+  "name": "teamgantt",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Digital Surgeons",
+  "dependencies": {
+    "request": "~2.88.0",
+    "trello": "~0.9.1"
+  }
+}
