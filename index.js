@@ -1,3 +1,5 @@
+#!/usr/bin/env nodejs
+
 const config = require('./config')
 const request = require('request')
 const trello = require('trello')
