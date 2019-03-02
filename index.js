@@ -76,8 +76,8 @@ request(
                 .makeRequest('post', '/1/cards', {
                   name: `${task.project_name} - ${task.name}`,
                   idList: config.trello.list,
-                  due: formattedDate
-                  // idMembers: members.slice(0, -1)
+                  due: formattedDate,
+                  idMembers: members.slice(0, -1)
                 })
                 .then(res => {
                   // success so log info to console
