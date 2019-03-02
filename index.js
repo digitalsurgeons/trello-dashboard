@@ -36,53 +36,64 @@ request(
       (error, response, body) => {
         const tasks = JSON.parse(body)
 
-        // loop through TeamGantt tasks
-        tasks.forEach(task => {
-          // ignore tasks with no end date or no resources
-          if (!task.end_date || !task.resources.length) {
-            return
-          }
+        // delete all trello cards in list
+        // create Trello card
+        trlo
+          .makeRequest('post', `/1/lists/${config.trello.list}/archiveAllCards`)
+          .then(res => {
+            console.log('Archived cards')
 
-          // loop over resources and create comma separated list of Trello member IDs
-          let members = ''
-          task.resources.forEach(resource => {
-            // loop through members array until we find this one
-            config.members.every(member => {
-              // found a match so add to comma separated string and end loop
-              if (member.name === resource.name) {
-                members += `${member.id},`
-                return false
+            // loop through TeamGantt tasks
+            tasks.forEach(task => {
+              // ignore tasks with no end date or no resources
+              if (!task.end_date || !task.resources.length) {
+                return
               }
 
-              return true
+              // loop over resources and create comma separated list of Trello member IDs
+              let members = ''
+              task.resources.forEach(resource => {
+                // loop through members array until we find this one
+                config.members.every(member => {
+                  // found a match so add to comma separated string and end loop
+                  if (member.name === resource.name) {
+                    members += `${member.id},`
+                    return false
+                  }
+
+                  return true
+                })
+              })
+
+              // format date for Trello
+              const dateParts = task.end_date.split('-')
+              const formattedDate = `${dateParts[1]}/${dateParts[2]}/${
+                dateParts[0]
+              }`
+
+              // create Trello card
+              trlo
+                .makeRequest('post', '/1/cards', {
+                  name: `${task.project_name} - ${task.name}`,
+                  idList: config.trello.list,
+                  due: formattedDate
+                  // idMembers: members.slice(0, -1)
+                })
+                .then(res => {
+                  // success so log info to console
+                  console.log('Card added')
+                  console.log(`Project: ${task.project_name}`)
+                  console.log(`Task: ${task.name}`)
+                  console.log(`Due Date: ${formattedDate}\r\n`)
+                })
+                .catch(err => {
+                  console.log(err)
+                })
             })
           })
-
-          // format date for Trello
-          const dateParts = task.end_date.split('-')
-          const formattedDate = `${dateParts[1]}/${dateParts[2]}/${
-            dateParts[0]
-          }`
-
-          // create Trello card
-          trlo
-            .makeRequest('post', '/1/cards', {
-              name: `${task.project_name} - ${task.name}`,
-              idList: config.trello.list,
-              due: formattedDate,
-              idMembers: members.slice(0, -1)
-            })
-            .then(res => {
-              // success so log info to console
-              console.log('Card added')
-              console.log(`Project: ${task.project_name}`)
-              console.log(`Task: ${task.name}`)
-              console.log(`Due Date: ${formattedDate}\r\n`)
-            })
-            .catch(err => {
-              console.log(err)
-            })
-        })
+          .catch(err => {
+            console.log(err)
+          })
       }
     )
   }
