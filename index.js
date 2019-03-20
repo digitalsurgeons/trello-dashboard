@@ -89,6 +89,9 @@ request(
                   console.log(`Due Date: ${formattedDate}\r\n`)
                 })
                 .catch(err => {
+                  console.log(
+                    `Error adding ${task.project_name} - ${task.name}`
+                  )
                   console.log(err)
                 })
             })
